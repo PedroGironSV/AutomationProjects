@@ -1,0 +1,21 @@
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class Ajustes {
+	protected String baseURI, completeURL, userID, pin, action, authToken, msisdn, offerType;
+	
+	public void setUpPost() {
+		baseURI = "http://tsbdev.sv.tigo.com";
+		completeURL = "soa-infra/services/ea-uat/esb-core/ServiceConsumer";
+		userID = "75010162";
+		pin = "2937";
+		action = "CREATE";
+		authToken = "";
+		msisdn = "72494664";
+		offerType = "all";
+	}
+	
+	public Ajustes() {
+		setUpPost();
+	}
+}

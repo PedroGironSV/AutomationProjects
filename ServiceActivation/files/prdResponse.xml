@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+<S:Body>
+<ns0:activationHomeProcessServiceResponse xmlns:ns0="http://service.activationhome.ea.tigo.com/">
+<return>
+<accountKey>
+</accountKey>
+<cliName>
+</cliName>
+<customerKey>
+</customerKey>
+<homePhone>
+</homePhone>
+<instalJourney>
+</instalJourney>
+<installDate>
+</installDate>
+<leadId>
+</leadId>
+<messageCode>1
+</messageCode>
+<messageDescription>CLIENTE CON PEDIDOS EN PROGRESO
+</messageDescription>
+<workOrderNum>
+</workOrderNum>
+</return>
+</ns0:activationHomeProcessServiceResponse>
+</S:Body>
+</S:Envelope>

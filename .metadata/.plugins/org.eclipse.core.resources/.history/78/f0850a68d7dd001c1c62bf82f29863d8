@@ -1,0 +1,92 @@
+import java.io.StringReader;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import groovy.json.JsonParser;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+public class Apis {
+
+	protected String request, response;
+	protected NodeList data;
+	protected DocumentBuilder builder = null;
+	protected InputSource src = new InputSource();
+	Document doc;
+	protected Map<String, String> requestBody = new LinkedHashMap<String, String>();
+	Ajustes aj = new Ajustes();
+
+	public String setRequestBody() {
+		requestBody.put("\"userId\":", "\"72645596\"");
+		requestBody.put("Pin", "1212");
+		requestBody.put("application", "tienda-pdv");
+		requestBody.put("topic", "api-pdv");
+		requestBody.put("action", "CREATE");
+		requestBody.put("authToken", "");
+		requestBody.put("userRequest", "crauda");
+
+		request = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:con=\"http://consumer.esb.ea.tigo.com\">\r\n"
+				+ "<soapenv:Header/>\r\n" + "<soapenv:Body>\r\n" + "<con:ServiceRequest>\r\n"
+				+ "<con:serviceId>authenticateEpinUserService</con:serviceId>\r\n" + "<con:applicationId/>\r\n"
+				+ "<con:endUser>72494664</con:endUser>\r\n" + "<con:dataType>json-pretty</con:dataType>\r\n"
+				+ "<con:data>\r\n" + "{\r\n" + "              \"userId\":\"72645596\",\r\n"
+				+ "              \"Pin\":\"1212\",\r\n" + "              \"application\":\"tienda-pdv\",\r\n"
+				+ "              \"topic\":\"api-pdv\",\r\n" + "              \"action\":\"CREATE\",\r\n"
+				+ "              \"authToken\":\"\",\r\n" + "              \"userRequest\":\"crauda\"\r\n" + "}\r\n"
+				+ " \r\n" + "</con:data>\r\n" + "</con:ServiceRequest>\r\n" + "</soapenv:Body>\r\n"
+				+ "</soapenv:Envelope>";
+
+		return request;
+	}
+
+	public String getPostResponse() {
+
+		request = setRequestBody();
+		RestAssured.baseURI = aj.baseURI;
+		response = RestAssured.given().body(request).when().post(aj.completeURL).then().extract().asString();
+
+		 System.out.println("Response: \n" + response);
+
+		return response;
+	}
+
+	public void setApiReader() {
+		response = getPostResponse();
+
+		try {
+			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			src.setCharacterStream(new StringReader(response));
+			doc = builder.parse(src);
+		} catch (Exception e) {
+			System.out.println("\n\nOcurrio el siguiente error: " + e.getMessage());
+		}
+
+	}
+
+	public void showData(String[] requiredData) {
+		setApiReader();
+		String[] targetData = new String[requiredData.length];
+		// Extraer UNICAMENTE XML: Puede ser un solo dato o toda la NodeList
+		String tagData = doc.getElementsByTagName("ns1:data").item(0).getTextContent();
+		// Si dentro del XML hay formato JSON se obtiene de la siguiente manera
+		JSONObject obj = new JSONObject(tagData);
+		for (int i = 0; i < requiredData.length; i++) {
+			targetData[i] = obj.getString(requiredData[i]);
+		}
+
+		//Imprimiendo los resultados
+		for(int j = 0; j < targetData.length; j++) {
+			System.out.println("\n"+ requiredData[j] + ": "+ targetData[j]);
+		}
+
+	}
+
+}

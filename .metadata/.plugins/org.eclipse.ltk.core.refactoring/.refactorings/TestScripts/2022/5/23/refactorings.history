@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename field &apos;aj&apos; in &apos;Apis&apos; to &apos;conf&apos;&#x0D;&#x0A;- Original project: &apos;TestScripts&apos;&#x0D;&#x0A;- Original element: &apos;Apis.aj&apos;&#x0D;&#x0A;- Renamed element: &apos;Apis.conf&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" delegate="false" deprecate="false" description="Rename field &apos;aj&apos;" flags="589830" getter="false" id="org.eclipse.jdt.ui.rename.field" input="/src\/test\/java=/optional=/true=/=/maven.pomderived=/true=/=/test=/true=/&lt;{Apis.java[Apis^aj" name="conf" references="true" setter="false" stamp="1653921510060" textual="false" version="1.0"/>
+</session>

@@ -1,0 +1,25 @@
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class Ajustes {
+	protected boolean showAvailableAddons = false, showActiveAddons = true, menageAddons = false;
+	protected String baseURI, completeURL, type, value, apiID, request, action, offerID;
+	protected Map<String, Object> headers = new LinkedHashMap<String, Object>();
+	
+	public void setUpPost() {
+		baseURI = "http://tsbdev.sv.tigo.com";
+		completeURL = "soa-infra/services/ea-uat/esb-core/ServiceConsumer";
+		type = "MSISDN";
+		value = "72534187"; //72534187
+		
+		headers.put("User-Agent", "PostmanRuntime/7.29.0");
+		headers.put("Accept", "*/*");
+		headers.put("Accept-Encoding", "gzip, deflate, br");
+		headers.put("Connection", "keep-alive");
+		headers.put("Content-Type", "text/xm");
+	}
+	
+	public Ajustes() {
+		setUpPost();
+	}
+}

@@ -1,0 +1,128 @@
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import groovy.json.JsonParser;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+public class Apis {
+
+	protected String request, response;
+	protected String[] targetData;
+	protected DocumentBuilder builder = null;
+	protected InputSource src = new InputSource();
+	protected Document doc;
+	Ajustes aj = new Ajustes();
+
+	public String authenticateEpinUserRequest() {
+
+		request = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:con=\"http://consumer.esb.ea.tigo.com\">\r\n"
+				+ "<soapenv:Header/>\r\n"
+				+ "<soapenv:Body>\r\n"
+				+ "<con:ServiceRequest>\r\n"
+				+ "<con:serviceId>authenticateEpinUserService</con:serviceId>\r\n"
+				+ "<con:applicationId/>\r\n"
+				+ "<con:endUser>72494664</con:endUser>\r\n"
+				+ "<con:dataType>json-pretty</con:dataType>\r\n"
+				+ "<con:data>\r\n"
+				+ "{\r\n"
+				+ "              \"userId\":\""+ aj.userID +"\",\r\n"
+				+ "              \"Pin\":\""+ aj.pin +"\",\r\n"
+				+ "              \"application\":\"tienda-pdv\",\r\n"
+				+ "              \"topic\":\"api-pdv\",\r\n"
+				+ "              \"action\":\""+ aj.action +"\",\r\n"
+				+ "              \"authToken\":\""+ aj.authToken + "\",\r\n"
+				+ "              \"userRequest\":\"crauda\"\r\n"
+				+ "}\r\n"
+				+ " \r\n"
+				+ "</con:data>\r\n"
+				+ "</con:ServiceRequest>\r\n"
+				+ "</soapenv:Body>\r\n"
+				+ "</soapenv:Envelope>";
+
+		return request;
+	}
+	
+	public String getEpinUserDataRequest() {
+
+		request = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:con=\"http://consumer.esb.ea.tigo.com\">\r\n"
+				+ "<soapenv:Header/>\r\n"
+				+ "<soapenv:Body>\r\n"
+				+ "<con:ServiceRequest>\r\n"
+				+ "<con:serviceId>getEpinUserDataService</con:serviceId>\r\n"
+				+ "<con:applicationId/>\r\n"
+				+ "<con:endUser>72494664</con:endUser>\r\n"
+				+ "<con:dataType>json-pretty</con:dataType>\r\n"
+				+ "<con:data>\r\n"
+				+ "{\r\n"
+				+ "              \"userId\":\""+ aj.userID +"\",\r\n"
+				+ "              \"authToken\":\""+ targetData[2] +"\"\r\n"
+				+ "}\r\n"
+				+ " </con:data>\r\n"
+				+ "</con:ServiceRequest>\r\n"
+				+ "</soapenv:Body>\r\n"
+				+ "</soapenv:Envelope>";
+
+		return request;
+	}
+
+	public String getPostResponse(String serviceID) {
+
+		//Validar el serviceID
+		if(serviceID.equals("authenticateEpinUserService")) {
+			request = authenticateEpinUserRequest();
+		}else {
+			if(serviceID.equals("getEpinUserDataService")) {
+				request = getEpinUserDataRequest();
+			}
+		}
+		RestAssured.baseURI = aj.baseURI;
+		response = RestAssured.given().body(request).when().post(aj.completeURL).then().extract().asString();
+
+		 System.out.println("Response: \n" + response);
+
+		return response;
+	}
+
+	public void setApiReader(String serviceID) {
+		response = getPostResponse(serviceID);
+
+		try {
+			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			src.setCharacterStream(new StringReader(response));
+			doc = builder.parse(src);
+		} catch (Exception e) {
+			System.out.println("\n\nOcurrio el siguiente error: " + e.getMessage());
+		}
+
+	}
+
+	public void showData(ArrayList requiredData, String serviceID) {
+		setApiReader(serviceID);
+		targetData = new String[requiredData.size()];
+		// Extraer UNICAMENTE XML: Puede ser un solo dato o toda la NodeList
+		String tagData = doc.getElementsByTagName("ns1:data").item(0).getTextContent();
+		// Si dentro del XML hay formato JSON se obtiene de la siguiente manera
+		JSONObject obj = new JSONObject(tagData);
+		for (int i = 0; i < requiredData.size(); i++) {
+			targetData[i] = obj.getString(requiredData.get(i).toString());
+		}
+
+		//Imprimiendo los resultados
+		for(int j = 0; j < targetData.length; j++) {
+			System.out.println("\n"+ requiredData.get(j) + ": "+ targetData[j]);
+		}
+
+	}
+
+}

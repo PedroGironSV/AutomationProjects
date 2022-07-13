@@ -1,0 +1,47 @@
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeClass;
+
+import java.util.ArrayList;
+
+import org.testng.annotations.AfterClass;
+
+public class Script {
+	protected ArrayList<String> requeridData;
+	Apis api;
+	
+	 @BeforeClass
+	  public void beforeClass() {
+		 api = new Apis();
+	  }
+	
+  @Test (priority = 1)
+  public void testAuthenticateEpinUserService() {
+	  requeridData = new ArrayList<String>();
+	  requeridData.add("validityTime");
+	  requeridData.add("refreshQuantity");
+	  requeridData.add("token");
+	  api.showSingleData(requeridData, "authenticateEpinUserService");
+  }
+  
+  /*
+
+  @Test (priority = 2)
+  public void testValidateUserRoleService() {
+	  requeridData = new ArrayList<String>();
+	  requeridData.add("userRoles");
+	  api.showArrayData(requeridData, "validateUserRoleService");
+  }
+  
+  @Test (priority = 3)
+  public void testGetPosProductCatalogService() {
+	  requeridData = new ArrayList<String>();
+	  requeridData.add("products");
+	  api.showArrayData(requeridData, "getPosProductCatalogService");
+  }
+  */
+  
+  @AfterClass
+  public void afterClass() {
+  }
+
+}

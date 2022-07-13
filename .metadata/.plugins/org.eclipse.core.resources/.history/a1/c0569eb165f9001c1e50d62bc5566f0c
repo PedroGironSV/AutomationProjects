@@ -1,0 +1,199 @@
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeClass;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.filechooser.FileSystemView;
+
+import org.testng.annotations.AfterClass;
+
+public class Script {
+	protected ArrayList<String> requeridData;
+	Apis api;
+
+	@BeforeClass
+	public void beforeClass() {
+		api = new Apis();
+	}
+	
+	
+	
+	@Test(priority = 1)
+	public void testAuthenticateEpinUserService() {
+		requeridData = new ArrayList<String>();
+		api.showSingleData(requeridData, "authenticateEpinUserService");
+	}
+	
+	public String addEvidence(ArrayList<String> nameEvs, int sheetIndex, int fila, int mergeRegIndex) {
+        String finalReport = "", filePath;
+        final String title;
+        Path fuente, destino;
+        File home = FileSystemView.getFileSystemView().getHomeDirectory();
+
+        try {
+            //Ruta de la matriz
+            filePath = "";
+            FileInputStream file = new FileInputStream(filePath);
+            //Objeto para manejar el Libro de Excel
+            XSSFWorkbook workbook = new XSSFWorkbook(file);
+            //Indicar el nombre de la Hoja
+            XSSFSheet sheet = workbook.getSheetAt(sheetIndex);
+            sheetName = sheet.getSheetName();
+
+            //Copiar la plantilla al escritorio con su nombre final
+            fuente = Paths.get(System.getProperty("user.dir") + "\\files", "Plantilla.docx");
+            finalReport = home.getAbsolutePath() + "\\Pruebas " + sheetName + ".docx";
+            destino = Paths.get(finalReport);
+            if (!Files.exists(destino)) {
+                Files.copy(fuente, destino);
+            }
+            // Template Loading and Rendering
+            if (HomeScreen.title.isEmpty()) {
+                title = "Pruebas - " + sheetName;
+            } else {
+                title = HomeScreen.title;
+            }
+
+            if (HomeScreen.tkt_RFC.isEmpty()) {
+                HomeScreen.tkt_RFC = "N/A";
+            }
+
+            if (HomeScreen.nameQA.isEmpty()) {
+                HomeScreen.nameQA = "Digital Automation Software";
+            }
+            XWPFTemplate template = XWPFTemplate.compile(finalReport).render(// data model
+                    new LinkedHashMap<String, Object>() {
+                {
+                    //put("valor buscado", "Texto a colocar en su lugar");
+                    put("title", new TextRenderData(title));
+                    put("sub", new TextRenderData(HomeScreen.tkt_RFC));
+                    put("author", new TextRenderData(HomeScreen.nameQA));
+                    put("fInicio", fecha.format(new Date()));
+                    put("fFin", fecha.format(new Date()));
+                }
+            });
+            // Output Document
+            template.writeAndClose(new FileOutputStream(finalReport));
+            //Buscar Documento Word existente
+            XWPFDocument document = new XWPFDocument(Files.newInputStream(Paths.get(finalReport)));
+            //Agregar parrafo al documento
+            XWPFParagraph paragraph = document.createParagraph();
+
+            //Configurar parrafo o texto
+            XWPFRun runCasoUso = paragraph.createRun();
+            XWPFRun runCasoPrueba = paragraph.createRun();
+            XWPFRun runText = paragraph.createRun();
+
+            row = sheet.getRow(fila);
+            col = row.getCell(1);
+
+            //Extraer caso de prueba
+            casoPrueba = col.getStringCellValue().trim();
+            col = row.getCell(3);
+            casoPrueba += ": " + col.getStringCellValue().trim();
+
+            //Extraer caso de uso
+            region = sheet.getMergedRegion(mergeRegIndex);
+            row = sheet.getRow(region.getFirstRow());
+            col = row.getCell(2);
+            casoUso = col.getStringCellValue().trim();
+            System.out.println("\n\nCasoUso: " + casoUso + "\nCurrent: " + currentCasoUso);
+
+            //Validar si es un nuevo Caso de Uso
+            if (casoUso.equals(currentCasoUso) == false) {
+                currentCasoUso = casoUso;
+                runCasoUso.setBold(true);
+                runCasoUso.setFontFamily("Calibri Light (Títulos)");
+                runCasoUso.setFontSize(14);
+                runCasoUso.setText(casoUso);
+                runCasoUso.setColor("00c3f8");
+                runCasoUso.addCarriageReturn();
+            }
+
+            //Validar si es un nuev Caso de Prueba
+            if (casoPrueba.equals(currentCasoPrueba) == false) {
+                currentCasoPrueba = casoPrueba;
+                //Agregar Caso de Prueba
+                runCasoPrueba.setBold(false);
+                runCasoPrueba.setFontFamily("Calibri Light (Títulos)");
+                runCasoPrueba.setFontSize(12);
+                runCasoPrueba.setText(casoPrueba);
+                runCasoPrueba.setColor("2271b3");
+                runCasoPrueba.addCarriageReturn();
+            }
+
+            //Establecer formato de letra para el texto
+            runText.setBold(true);
+            runText.setFontFamily("Calibri Light (Títulos)");
+            runText.setFontSize(12);
+            runText.setColor("191970");
+
+            InputStream imageCxIRequest, imageCxIResponse, imageCPRequest, imageCPResponse;
+            imageCxIRequest = new FileInputStream(System.getProperty("user.dir") + "\\files\\" + nameEvs.get(0) + ".png");
+            imageCxIResponse = new FileInputStream(System.getProperty("user.dir") + "\\files\\" + nameEvs.get(1) + ".png");
+            imageCPRequest = new FileInputStream(System.getProperty("user.dir") + "\\files\\" + nameEvs.get(2) + ".png");
+            imageCPResponse = new FileInputStream(System.getProperty("user.dir") + "\\files\\" + nameEvs.get(3) + ".png");
+
+            //Indicar las propiedades de la imagen
+            int imageType = XWPFDocument.PICTURE_TYPE_PNG;
+            //Set image width/height
+            int imageWidth = 450;
+            int imageHeight = 250;
+
+            //Evidencias del Web Service queryInstallationChargesService
+            runText.setText("Request Cargo por Instalación");
+            //Agregar la captura al documento
+            runText.addPicture(imageCxIRequest, imageType, "img", Units.toEMU(imageWidth), Units.toEMU(imageHeight));
+            runText.setText("Response cargo por instalación");
+            runText.addPicture(imageCxIResponse, imageType, "img", Units.toEMU(imageWidth), Units.toEMU(imageHeight));
+            imageCxIRequest.close();
+            imageCxIResponse.close();
+            //Evidencias del Web Service consultaPromocionalCXIService
+            runText.setText("Request consultar promoción");
+            runText.addPicture(imageCPRequest, imageType, "img", Units.toEMU(imageWidth), Units.toEMU(imageHeight));
+            runText.setText("Response consultar promoción");
+            runText.addPicture(imageCPResponse, imageType, "img", Units.toEMU(imageWidth), Units.toEMU(imageHeight));
+            imageCPRequest.close();
+            imageCPResponse.close();
+
+            //Set document name and destination
+            FileOutputStream fos = new FileOutputStream(finalReport);
+            document.write(fos);
+            fos.close();
+            //Cleanup
+            document.close();
+
+            //Eliminar capturas de evidencias temporales
+            deleteScreenShots(nameEvs);
+        } catch (IOException | InvalidFormatException ex) {
+            System.out.println("Error en addEvidence: " + ex);
+        }
+        return finalReport;
+    }
+
+	/*
+	@Test(priority = 2)
+	public void testValidateUserRoleService() {
+		requeridData = new ArrayList<String>();
+		requeridData.add("userRoles");
+		api.showArrayData(requeridData, "validateUserRoleService");
+	}
+
+	@Test(priority = 3)
+	public void testGetPosProductCatalogService() {
+		requeridData = new ArrayList<String>();
+		requeridData.add("products");
+		api.showArrayData(requeridData, "getPosProductCatalogService");
+	}
+	*/
+
+	@AfterClass
+	public void afterClass() {
+	}
+
+}
